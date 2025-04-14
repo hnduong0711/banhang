@@ -1,10 +1,52 @@
+import { useEffect, useState } from 'react';
 import AdminHeader from '../../components/admin/AdminHeader';
+import Pagination from '../../components/pagination/Pagination';
+import axios from 'axios';
 
 function AdminProducts() {
-  const products = [
-    { id: 1, name: 'Áo Thun Xanh', price: 150000 },
-    { id: 2, name: 'Quần Jeans Đen', price: 300000 },
-  ];
+  const [allProducts, setAllProducts] = useState([]); // Lưu toàn bộ sản phẩm
+  const [currentProducts, setCurrentProducts] = useState([]); // Sản phẩm trên trang hiện tại
+  const [totalItems, setTotalItems] = useState(0); // Tổng số sản phẩm
+  const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+  const [pageSize] = useState(10); // Số sản phẩm mỗi trang
+  const { token } = JSON.parse(localStorage.getItem('user')) || {};
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get('http://localhost:5155/api/Product', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        const products = response.data;
+        setAllProducts(products);
+        setTotalItems(products.length);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        if (error.response?.status === 401) {
+          alert('Phiên đăng nhập hết hạn!');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+        }
+      }
+    };
+    if (token) {
+      fetchProducts();
+    }
+  }, [token]);
+
+  // Cập nhật sản phẩm hiển thị khi đổi trang
+  useEffect(() => {
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    setCurrentProducts(allProducts.slice(start, end));
+  }, [currentPage, pageSize, allProducts]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -25,7 +67,7 @@ function AdminProducts() {
               </tr>
             </thead>
             <tbody>
-              {products.map((product) => (
+              {currentProducts.map((product) => (
                 <tr key={product.id} className="border-b">
                   <td className="p-2">{product.id}</td>
                   <td className="p-2">{product.name}</td>
@@ -39,6 +81,12 @@ function AdminProducts() {
             </tbody>
           </table>
         </div>
+        <Pagination
+          totalItems={totalItems}
+          pageSize={pageSize}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
   );

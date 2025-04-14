@@ -1,17 +1,51 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import Header from '../components/Header';
-import { AoFerrow, Quanjogger, Tuilv, Giayf1enter } from '../assets/images'; 
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import Header from "../components/Header";
+import axios from "axios";
 
 function Home() {
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
+  const [products, setProducts] = useState([]);
+  const {user, token} = JSON.parse(localStorage.getItem("user"));
 
-  const products = [
-    { id: 1, name: 'Áo Thun Xanh', price: 150000, image: AoFerrow },
-    { id: 2, name: 'Quần Jeans Đen', price: 300000, image: Quanjogger },
-    { id: 3, name: 'Giày Sneaker Trắng', price: 500000, image: Giayf1enter },
-    { id: 4, name: 'Túi Xách Xanh', price: 250000, image: Tuilv },
-  ];
+  // dùng useeefect để gọi api danh sách sản phẩm
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get("http://localhost:5155/api/Product",{
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        if (response.data) {
+          setProducts(response.data);
+        }
+        console.log(response.data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  const addProductToCart = async (productId) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:5155/api/Cart/${user.id}/${productId}`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("Product added to cart:", response.data);
+    } catch (error) {
+      console.error("Error adding product to cart:", error);
+    }
+  };
 
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(search.toLowerCase())
@@ -41,15 +75,17 @@ function Home() {
             >
               <Link to={`/product/${product.id}`}>
                 <img
-                  src={product.image}
+                  src={product.imageUrl}
                   alt={product.name}
                   className="w-full h-48 object-cover"
                 />
               </Link>
               <div className="p-4">
-                <h2 className="text-lg font-semibold text-gray-800">{product.name}</h2>
+                <h2 className="text-lg font-semibold text-gray-800">
+                  {product.name}
+                </h2>
                 <p className="text-gray-600">
-                  {product.price.toLocaleString('vi-VN')} VNĐ
+                  {product.price.toLocaleString("vi-VN")} VNĐ
                 </p>
                 <button className="mt-3 w-full bg-gradient-to-r from-green-600 to-green-800 text-white py-2 rounded-full hover:from-green-700 hover:to-green-900 transition duration-300">
                   Thêm vào giỏ
@@ -59,7 +95,9 @@ function Home() {
           ))}
         </div>
         {filteredProducts.length === 0 && (
-          <p className="text-center text-gray-500 mt-6">Không tìm thấy sản phẩm nào!</p>
+          <p className="text-center text-gray-500 mt-6">
+            Không tìm thấy sản phẩm nào!
+          </p>
         )}
       </div>
     </div>

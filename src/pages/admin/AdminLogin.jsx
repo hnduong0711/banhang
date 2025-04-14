@@ -1,28 +1,32 @@
-import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  // Hàm xử lý đăng nhập
+
   const handleLogin = (e) => {
     e.preventDefault();
-    // Giả lập kiểm tra đăng nhập (thay bằng API thực tế sau)
-    if (username === 'a' && password === '123123') {
+
+    if (username === "" && password === "") {
       login();
-      navigate('/admin/products'); // Chuyển đến /admin/products sau khi đăng nhập
+      navigate("/admin/products");
     } else {
-      alert('Sai thông tin đăng nhập!');
+      alert("Sai thông tin đăng nhập!");
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-4 text-green-800 text-center">Đăng nhập Admin</h1>
+        <h1 className="text-2xl font-bold mb-4 text-green-800 text-center">
+          Đăng nhập Admin
+        </h1>
         <form onSubmit={handleLogin}>
           <input
             type="text"

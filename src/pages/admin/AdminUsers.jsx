@@ -1,10 +1,36 @@
+import axios from 'axios';
 import AdminHeader from '../../components/admin/AdminHeader';
+import { use, useEffect, useState } from 'react';
 
 function AdminUsers() {
-  const users = [
-    { id: 1, username: 'user1', email: 'user1@example.com' },
-    { id: 2, username: 'user2', email: 'user2@example.com' },
-  ];
+  const [users, setAllUsers] = useState([]);
+  const { token } = JSON.parse(localStorage.getItem('user')) || {};
+
+  const GetAllUsers = async () => {
+    try {
+      const response = await axios.get('http://localhost:5155/api/User', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      const users = response.data;
+      setAllUsers(users);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      if (error.response?.status === 401) {
+        alert('Phiên đăng nhập hết hạn!');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
+    }
+  }
+
+  useEffect(() => {
+    GetAllUsers();
+  });
+
+
 
   return (
     <div className="min-h-screen bg-gray-50">

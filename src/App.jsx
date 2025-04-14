@@ -11,7 +11,8 @@ import AdminProducts from './pages/admin/AdminProducts';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminChat from './pages/admin/AdminChat';
-import Login from './pages/Login';
+import Login from './pages/admin/AdminLogin';
+import UserLogin from './pages/UserLogin';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/profile" element={<UserProfile />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/user-login" element={<UserLogin />} />
             {/* Login route */}
             <Route path="/login" element={<Login />} />
             {/* Admin redirect to login */}

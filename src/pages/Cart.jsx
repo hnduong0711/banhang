@@ -35,11 +35,15 @@ function Cart() {
     }
   }, [userId, token]);
 
-  const handleIncrease = async (invoiceDetailId) => {
+  const handleIncrease = async (invoiceId, productId) => {
     try {
-      const response = await axios.put(
-        `http://localhost:5155/api/InvoiceDetail/increase/${invoiceDetailId}`,
-        null,
+      const response = await axios.post(
+        `http://localhost:5155/api/InvoiceDetail/update-quantity`,
+        {
+          InvoiceId: invoiceId,
+          ProductId: productId,
+          QuantityChange: 1, // Tăng 1
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -48,7 +52,6 @@ function Cart() {
         }
       );
       console.log("Increase product quantity response:", response.data);
-      // Gọi lại API để cập nhật invoices
       await fetchInvoices(); // Re-fetch để cập nhật giao diện
     } catch (error) {
       console.error("Error increasing product quantity:", error);
@@ -56,15 +59,21 @@ function Cart() {
         alert("Phiên đăng nhập hết hạn! Vui lòng đăng nhập lại.");
         localStorage.removeItem("user");
         window.location.href = "/user-login";
+      } else {
+        alert("Không thể tăng số lượng. Vui lòng thử lại!");
       }
     }
   };
 
-  const handleDecrease = async (invoiceDetailId) => {
+  const handleDecrease = async (invoiceId, productId) => {
     try {
-      const response = await axios.put(
-        `http://localhost:5155/api/InvoiceDetail/decrease/${invoiceDetailId}`,
-        null,
+      const response = await axios.post(
+        `http://localhost:5155/api/InvoiceDetail/update-quantity`,
+        {
+          InvoiceId: invoiceId,
+          ProductId: productId,
+          QuantityChange: -1, // Giảm 1
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -72,23 +81,21 @@ function Cart() {
           },
         }
       );
-      console.log("Increase product quantity response:", response.data);
-      // Gọi lại API để cập nhật invoices
+      console.log("Decrease product quantity response:", response.data);
       await fetchInvoices(); // Re-fetch để cập nhật giao diện
     } catch (error) {
-      console.error("Error increasing product quantity:", error);
+      console.error("Error decreasing product quantity:", error);
       if (error.response?.status === 401) {
         alert("Phiên đăng nhập hết hạn! Vui lòng đăng nhập lại.");
         localStorage.removeItem("user");
         window.location.href = "/user-login";
+      } else {
+        alert("Không thể giảm số lượng. Vui lòng thử lại!");
       }
     }
-    console.log("Decrease not implemented yet:", invoiceDetailId);
   };
 
   const handleDelete = async (invoiceDetailId) => {
-    console.log("chạy thử nè");
-    
     try {
       const response = await axios.delete(
         `http://localhost:5155/api/InvoiceDetail/delete/${invoiceDetailId}`,
@@ -100,7 +107,6 @@ function Cart() {
         }
       );
       console.log("Delete product response:", response.data);
-      // Gọi lại API để cập nhật invoices
       await fetchInvoices(); // Re-fetch để cập nhật giao diện
     } catch (error) {
       console.error("Error deleting product:", error);
@@ -108,24 +114,17 @@ function Cart() {
         alert("Phiên đăng nhập hết hạn! Vui lòng đăng nhập lại.");
         localStorage.removeItem("user");
         window.location.href = "/user-login";
+      } else {
+        alert("Không thể xóa sản phẩm. Vui lòng thử lại!");
       }
     }
-  }
+  };
 
   const cart = useMemo(() => {
-    return invoices.find((item) => item.status === false);
+    return invoices.find((item) => item.status === "PENDING") || null;
   }, [invoices]);
 
   const cartItems = cart?.invoiceDetails;
-
-  // if (!cart) {
-  //   return (
-  //     <div className="min-h-screen bg-gray-50">
-  //       <Header />
-  //       <div className="container mx-auto p-4">Loading...</div>
-  //     </div>
-  //   );
-  // }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -139,18 +138,23 @@ function Cart() {
               <div>
                 <button
                   className="px-2 text-green-700"
-                  onClick={() => handleDecrease(item.id)}
+                  onClick={() => handleDecrease(cart.id, item.product.id)}
                 >
                   -
                 </button>
                 <span className="px-2">{item.quantity}</span>
                 <button
                   className="px-2 text-green-700"
-                  onClick={() => handleIncrease(item.id)}
+                  onClick={() => handleIncrease(cart.id, item.product.id)}
                 >
                   +
                 </button>
-                <button className="ml-4 text-red-500" onClick={() => handleDelete(item.id)}>Xóa</button>
+                <button
+                  className="ml-4 text-red-500"
+                  onClick={() => handleDelete(item.id)}
+                >
+                  Xóa
+                </button>
               </div>
             </div>
           ))}

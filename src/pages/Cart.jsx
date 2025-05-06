@@ -95,10 +95,10 @@ function Cart() {
     }
   };
 
-  const handleDelete = async (invoiceDetailId) => {
+  const handleDelete = async (invoiceId, productId) => {
     try {
       const response = await axios.delete(
-        `http://localhost:5155/api/InvoiceDetail/delete/${invoiceDetailId}`,
+        `http://localhost:5155/api/InvoiceDetail/remove-product/${invoiceId}/${productId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -151,7 +151,7 @@ function Cart() {
                 </button>
                 <button
                   className="ml-4 text-red-500"
-                  onClick={() => handleDelete(item.id)}
+                  onClick={() => handleDelete(cart.id, item.product.id)}
                 >
                   Xóa
                 </button>

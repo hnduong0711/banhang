@@ -56,7 +56,7 @@ function Header() {
               >
                 Giỏ hàng
               </NavLink>
-              <NavLink
+              {/* <NavLink
                 to="/checkout"
                 className={({ isActive }) =>
                   isActive
@@ -65,7 +65,7 @@ function Header() {
                 }
               >
                 Thanh toán
-              </NavLink>
+              </NavLink> */}
               <NavLink
                 to="/profile"
                 className={({ isActive }) =>
@@ -76,7 +76,7 @@ function Header() {
               >
                 Tài khoản
               </NavLink>
-              <NavLink
+              {/* <NavLink
                 to="/chat"
                 className={({ isActive }) =>
                   isActive
@@ -85,7 +85,7 @@ function Header() {
                 }
               >
                 Chat
-              </NavLink>
+              </NavLink> */}
             </>
           )}
 

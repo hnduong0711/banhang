@@ -6,7 +6,7 @@ import axios from "axios";
 function Home() {
   const [search, setSearch] = useState("");
   const [products, setProducts] = useState([]);
-  const {user, token} = JSON.parse(localStorage.getItem("user"));
+  const {user, token} = JSON.parse(localStorage.getItem("user")) || {};
   const [invoices, setInvoices] = useState([]);
   useEffect(() => {
     const fetchInvoices = async () => {

@@ -30,6 +30,10 @@ function AdminUsers() {
     password: "",
   });
 
+  // State cho modal xác nhận xóa
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+
   // Lấy danh sách users
   const GetAllUsers = async () => {
     try {
@@ -127,6 +131,18 @@ function AdminUsers() {
       email: "",
       password: "",
     });
+  };
+
+  // Hàm mở modal xác nhận xóa
+  const openDeleteModal = (userId) => {
+    setUserToDelete(userId);
+    setIsDeleteModalOpen(true);
+  };
+
+  // Hàm đóng modal xác nhận xóa
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setUserToDelete(null);
   };
 
   // Hàm xử lý thay đổi input (chung cho cả edit và add)
@@ -238,6 +254,7 @@ function AdminUsers() {
         setCurrentPage(maxPage);
       }
       setTotalItems(newTotalItems);
+      closeDeleteModal();
     } catch (error) {
       console.error("Error deleting user:", error);
       if (error.response?.status === 401) {
@@ -286,7 +303,7 @@ function AdminUsers() {
                     </button>
                     <button
                       className="text-red-500"
-                      onClick={() => handleDeleteUser(user.id)}
+                      onClick={() => openDeleteModal(user.id)}
                     >
                       Xóa
                     </button>
@@ -417,6 +434,35 @@ function AdminUsers() {
             </button>
           </div>
         </form>
+      </Modal>
+
+      {/* Modal xác nhận xóa */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onRequestClose={closeDeleteModal}
+        className="bg-white p-6 rounded-lg shadow-lg max-w-sm mx-auto mt-20"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+      >
+        <h2 className="text-xl font-bold mb-4 text-green-800">Xác nhận xóa</h2>
+        <p className="mb-4 text-gray-700">
+          Bạn có chắc chắn muốn xóa user này không?
+        </p>
+        <div className="flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={closeDeleteModal}
+            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+          >
+            Hủy
+          </button>
+          <button
+            type="button"
+            onClick={() => handleDeleteUser(userToDelete)}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Xóa
+          </button>
+        </div>
       </Modal>
     </div>
   );

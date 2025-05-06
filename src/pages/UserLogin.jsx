@@ -2,7 +2,7 @@ import axios from "axios";
 import { use, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function UserLogin() {
+function UserLogin({ setToken }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -18,7 +18,8 @@ function UserLogin() {
 
       if (response.data) {
         localStorage.setItem("user", JSON.stringify(response.data));
-        navigate("/"); // Redirect to home page after successful login
+        setToken(response.data.token); // 
+        navigate("/"); // 
       } else {
         alert("Sai thông tin đăng nhập!");
       }

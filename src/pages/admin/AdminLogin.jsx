@@ -13,7 +13,7 @@ function Login() {
   const handleLogin = (e) => {
     e.preventDefault();
 
-    if (username === "" && password === "") {
+    if (username === "admin" && password === "123456") {
       login();
       navigate("/admin/products");
     } else {

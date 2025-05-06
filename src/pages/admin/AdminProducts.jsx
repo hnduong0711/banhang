@@ -36,6 +36,10 @@ function AdminProducts() {
     Image: null,
   });
 
+  // State cho modal xác nhận xóa
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+
   // Lấy danh sách sản phẩm
   useEffect(() => {
     const fetchProducts = async () => {
@@ -145,6 +149,18 @@ function AdminProducts() {
     });
   };
 
+  // Hàm mở modal xác nhận xóa
+  const openDeleteModal = (productId) => {
+    setProductToDelete(productId);
+    setIsDeleteModalOpen(true);
+  };
+
+  // Hàm đóng modal xác nhận xóa
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setProductToDelete(null);
+  };
+
   // Hàm xử lý thay đổi input (chung cho cả edit và add)
   const handleInputChange = (e, setFormData, formData) => {
     const { name, value } = e.target;
@@ -184,7 +200,6 @@ function AdminProducts() {
 
       console.log("Product added:", response.data);
 
-      // Thêm sản phẩm mới vào danh sách
       setAllProducts([...allProducts, response.data]);
       setTotalItems(allProducts.length + 1);
       closeAddModal();
@@ -213,7 +228,6 @@ function AdminProducts() {
       formData.append("Price", updatedData.Price);
       formData.append("Quantity", updatedData.Quantity);
 
-      // Chỉ append Image nếu người dùng chọn file ảnh mới
       if (updatedData.Image && updatedData.Image instanceof File) {
         formData.append("Image", updatedData.Image);
       }
@@ -251,6 +265,7 @@ function AdminProducts() {
     }
   };
 
+  // Hàm xóa sản phẩm
   const handleDeleteProduct = async (productId) => {
     try {
       const response = await axios.delete(
@@ -269,6 +284,7 @@ function AdminProducts() {
       );
       setAllProducts(updatedProducts);
       setTotalItems(updatedProducts.length);
+      closeDeleteModal();
     } catch (error) {
       console.error("Error deleting product:", error);
       if (error.response?.status === 401) {
@@ -321,7 +337,7 @@ function AdminProducts() {
                     </button>
                     <button
                       className="text-red-500"
-                      onClick={() => handleDeleteProduct(product.id)}
+                      onClick={() => openDeleteModal(product.id)}
                     >
                       Xóa
                     </button>
@@ -544,6 +560,35 @@ function AdminProducts() {
             </button>
           </div>
         </form>
+      </Modal>
+
+      {/* Modal xác nhận xóa */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onRequestClose={closeDeleteModal}
+        className="bg-white p-6 rounded-lg shadow-lg max-w-sm mx-auto mt-20"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+      >
+        <h2 className="text-xl font-bold mb-4 text-green-800">Xác nhận xóa</h2>
+        <p className="mb-4 text-gray-700">
+          Bạn có chắc chắn muốn xóa sản phẩm này không?
+        </p>
+        <div className="flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={closeDeleteModal}
+            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+          >
+            Hủy
+          </button>
+          <button
+            type="button"
+            onClick={() => handleDeleteProduct(productToDelete)}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Xóa
+          </button>
+        </div>
       </Modal>
     </div>
   );

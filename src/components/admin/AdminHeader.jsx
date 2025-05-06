@@ -7,8 +7,9 @@ function AdminHeader() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();
-    navigate('/login');
+    // logout();
+    localStorage.removeItem('admin');
+    window.location.href = '/admin';
   };
 
   return (
@@ -49,7 +50,7 @@ function AdminHeader() {
             >
               Quản lý hóa đơn
             </NavLink>
-            <NavLink
+            {/* <NavLink
               to="/admin/chat"
               className={({ isActive }) =>
                 isActive
@@ -58,7 +59,7 @@ function AdminHeader() {
               }
             >
               Chat với user
-            </NavLink>
+            </NavLink> */}
           </nav>
           <button
             onClick={handleLogout}

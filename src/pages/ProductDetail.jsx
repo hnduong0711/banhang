@@ -4,16 +4,19 @@ import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 
 function ProductDetail() {
-  const { id } = useParams();
-  const { token, user } = JSON.parse(localStorage.getItem("user"));
+  const { productId } = useParams();
+  const { token, id } = JSON.parse(localStorage.getItem("user"));
   const [invoices, setInvoices] = useState([]);
   const [product, setProduct] = useState(null);
+
+  console.log(productId);
+  
 
   useEffect(() => {
     const fetchInvoices = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5155/api/Invoice/user/${user.id}`,
+          `http://localhost:5155/api/Invoice/user/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -40,7 +43,7 @@ function ProductDetail() {
       }
     };
     fetchInvoices();
-  }, [user.id, token]);
+  }, [id, token]);
 
   const cart = useMemo(() => {
       return invoices.find((item) => item.status === "PENDING") || null;
@@ -50,7 +53,7 @@ function ProductDetail() {
     const fetchProduct = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5155/api/Product/${id}`,
+          `http://localhost:5155/api/Product/${productId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -58,7 +61,7 @@ function ProductDetail() {
             },
           }
         );
-        console.log(response.data);
+        console.log("product ", response.data);
 
         if (response.data) {
           setProduct(response.data);
@@ -70,14 +73,17 @@ function ProductDetail() {
     fetchProduct();
   }, [id, token]);
 
+  console.log("Cart: ", cart);
+  
+
   const handleAddToCart = async () => {
     try {
       const response = await axios.post(
         `http://localhost:5155/api/InvoiceDetail/add`,
         {
           InvoiceId: cart.id,
-          ProductId: product.id,
-          Quantity: 1,
+          ProductId: productId,
+          QuantityChange: 1,
         },
         {
           headers: {

@@ -3,15 +3,14 @@ import Header from "../components/Header";
 import axios from "axios";
 
 function Cart() {
-  const { user, token } = JSON.parse(localStorage.getItem("user")) || {};
-  const userId = user?.id;
+  const { id, token } = JSON.parse(localStorage.getItem("user")) || {};
   const [invoices, setInvoices] = useState([]);
 
   // Hàm lấy danh sách invoices
   const fetchInvoices = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5155/api/invoice/user/${userId}`,
+        `http://localhost:5155/api/invoice/user/${id}`,
         {
           method: "GET",
           headers: {
@@ -30,10 +29,10 @@ function Cart() {
 
   // Gọi fetchInvoices khi mount
   useEffect(() => {
-    if (userId && token) {
+    if (id && token) {
       fetchInvoices();
     }
-  }, [userId, token]);
+  }, [id, token]);
 
   const handleIncrease = async (invoiceId, productId) => {
     try {

@@ -1,18 +1,27 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import axios from "axios";
 
 function Home() {
   const [search, setSearch] = useState("");
   const [products, setProducts] = useState([]);
-  const {user, token} = JSON.parse(localStorage.getItem("user")) || {};
   const [invoices, setInvoices] = useState([]);
+  const navigate = useNavigate();
+  const { id, token } = JSON.parse(localStorage.getItem("user")) || {};
+  
+  
+
   useEffect(() => {
+    if (!token) {
+      navigate("/user-login");
+      return;
+    }
+
     const fetchInvoices = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5155/api/Invoice/user/${user.id}`,
+          `http://localhost:5155/api/Invoice/user/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -20,58 +29,73 @@ function Home() {
             },
           }
         );
-        const invoices = response.data;
-        console.log("Invoices: ", invoices);
-        if (invoices.length > 0) {
-          setInvoices(invoices);
-        } else {
-          alert("Bạn chưa có hóa đơn nào!");
-          window.location.href = "/cart";
-        }
+        setInvoices(response.data); // Lưu hóa đơn, kể cả khi rỗng
       } catch (error) {
         console.error("Error fetching invoices:", error);
-
         if (error.response?.status === 401) {
           alert("Phiên đăng nhập hết hạn! Vui lòng đăng nhập lại.");
           localStorage.removeItem("user");
-          window.location.href = "/login";
+          navigate("/user-login");
         }
       }
     };
     fetchInvoices();
-  }, [user.id, token]);
+  }, [id, token, navigate]);
 
   const cart = useMemo(() => {
-      return invoices.find((item) => item.status === "PENDING") || null;
-    }, [invoices]);
+    return invoices.find((item) => item.status === "PENDING") || null;
+  }, [invoices]);
 
-  // dùng useeefect để gọi api danh sách sản phẩm
   useEffect(() => {
+    if (!token) return;
+
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("http://localhost:5155/api/Product",{
+        const response = await axios.get("http://localhost:5155/api/Product", {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         });
+        console.log("products ",response.data);
+        
         if (response.data) {
           setProducts(response.data);
         }
-        console.log(response.data);
       } catch (error) {
         console.error("Error fetching products:", error);
+        if (error.response?.status === 401) {
+          alert("Phiên đăng nhập hết hạn! Vui lòng đăng nhập lại.");
+          localStorage.removeItem("user");
+          navigate("/user-login");
+        }
       }
     };
     fetchProducts();
-  }, []);
+  }, [token, navigate]);
 
   const handleAddToCart = async (id) => {
     try {
+      let invoiceId = cart?.id;
+      if (!invoiceId) {
+        const response = await axios.post(
+          `http://localhost:5155/api/Invoice/create`,
+          { userId: id, status: "PENDING" },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        invoiceId = response.data.id;
+        setInvoices([...invoices, response.data]);
+      }
+
       const response = await axios.post(
         `http://localhost:5155/api/InvoiceDetail/add`,
         {
-          InvoiceId: cart.id,
+          InvoiceId: invoiceId,
           ProductId: id,
           Quantity: 1,
         },
@@ -84,12 +108,13 @@ function Home() {
       );
       console.log("Add to cart response:", response.data);
       alert("Thêm vào giỏ hàng thành công!");
+      navigate("/cart");
     } catch (error) {
       console.error("Error adding to cart:", error);
       if (error.response?.status === 401) {
         alert("Phiên đăng nhập hết hạn! Vui lòng đăng nhập lại.");
         localStorage.removeItem("user");
-        window.location.href = "/login";
+        navigate("/user-login");
       }
     }
   };
@@ -113,6 +138,12 @@ function Home() {
             placeholder="Tìm kiếm sản phẩm..."
             className="w-full max-w-md p-3 border-2 border-green-500 rounded-full shadow-sm focus:outline-none focus:border-green-700 transition duration-300"
           />
+          <Link
+            to="/cart"
+            className="flex items-center ml-4 bg-green-600 text-white py-2 px-4 rounded-full hover:bg-green-700"
+          >
+            Xem giỏ hàng
+          </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredProducts.map((product) => (
@@ -134,7 +165,10 @@ function Home() {
                 <p className="text-gray-600">
                   {product.price.toLocaleString("vi-VN")} VNĐ
                 </p>
-                <button onClick={() => handleAddToCart(product.id)} className="mt-3 w-full bg-gradient-to-r from-green-600 to-green-800 text-white py-2 rounded-full hover:from-green-700 hover:to-green-900 transition duration-300">
+                <button
+                  onClick={() => handleAddToCart(product.id)}
+                  className="mt-3 w-full bg-gradient-to-r from-green-600 to-green-800 text-white py-2 rounded-full hover:from-green-700 hover:to-green-900 transition duration-300"
+                >
                   Thêm vào giỏ
                 </button>
               </div>

@@ -13,7 +13,9 @@ function AdminProducts() {
   const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
-  const { token } = JSON.parse(localStorage.getItem("user")) || {};
+  const { token } = JSON.parse(localStorage.getItem("admin")) || {};
+  console.log(token);
+  
 
   // State cho modal chỉnh sửa
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);

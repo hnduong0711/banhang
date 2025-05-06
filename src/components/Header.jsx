@@ -11,7 +11,7 @@ function Header() {
   const handleLogout = () => {
     localStorage.removeItem('token'); // Xóa token
     localStorage.removeItem('user'); // Xóa thông tin user nếu có
-    navigate('/user-login'); // Chuyển hướng về trang đăng nhập
+    window.location.href = '/user-login';
   };
 
   return (

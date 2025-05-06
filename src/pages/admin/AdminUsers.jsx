@@ -13,7 +13,7 @@ function AdminUsers() {
   const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
-  const { token } = JSON.parse(localStorage.getItem("user")) || {};
+  const { token } = JSON.parse(localStorage.getItem("admin")) || {};
 
   // State cho modal chỉnh sửa
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -21,6 +21,7 @@ function AdminUsers() {
   const [editFormData, setEditFormData] = useState({
     email: "",
     password: "",
+    role: "USER"
   });
 
   // State cho modal thêm user
@@ -28,6 +29,7 @@ function AdminUsers() {
   const [addFormData, setAddFormData] = useState({
     email: "",
     password: "",
+    role: "USER",
   });
 
   // State cho modal xác nhận xóa
@@ -91,6 +93,7 @@ function AdminUsers() {
       setEditFormData({
         email: user.email ?? "",
         password: "", // Không điền sẵn password để bảo mật
+        role: "USER"
       });
       setIsEditModalOpen(true);
     } catch (error) {
@@ -112,6 +115,7 @@ function AdminUsers() {
     setEditFormData({
       email: "",
       password: "",
+      role: "USER",
     });
   };
 
@@ -120,6 +124,7 @@ function AdminUsers() {
     setAddFormData({
       email: "",
       password: "",
+      role: "USER",
     });
     setIsAddModalOpen(true);
   };
@@ -130,6 +135,7 @@ function AdminUsers() {
     setAddFormData({
       email: "",
       password: "",
+      role: "USER",
     });
   };
 
@@ -148,7 +154,7 @@ function AdminUsers() {
   // Hàm xử lý thay đổi input (chung cho cả edit và add)
   const handleInputChange = (e, setFormData, formData) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({ ...formData, [name]: value});
   };
 
   // Hàm thêm user
